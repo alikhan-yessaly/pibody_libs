@@ -1,6 +1,6 @@
 from pibody.helper import resolve_pins, get_i2c, get_pin
 from pibody import helper
-# This Libs correspond to the firmware PiBody v1.1, on Micropython v1.28.0. Other version might be incompatible. Check your REPL banner to make sure that versions are the same
+# These libs match the PiBody v1.1 firmware on MicroPython v1.29.0. Other versions might be incompatible: check the REPL banner.
 # 3 Pin
 def LED(slot):
     from PinExt import Pin
@@ -83,6 +83,13 @@ def SoundSensor(slot : str | tuple):
 def WiFi():
     from .IOT.WiFi import WiFi
     return WiFi()
+
+def wifi_setup(timeout=300):
+    """Set up Wi-Fi from a phone: scan the QR code on the screen, pick the
+    network on the page that opens, type its password. Saved for
+    WiFi().connect() without arguments."""
+    from .IOT.WiFiSetup import run
+    return run(timeout)
 
 def TelegramBot(token):
     from .IOT.TelegramBot import TelegramBot as TGB

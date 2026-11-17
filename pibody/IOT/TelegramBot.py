@@ -19,7 +19,7 @@ class TelegramBot:
         
         response = None
         try:
-            response = requests.post(url, json=payload)
+            response = requests.post(url, json=payload, timeout=10)
         except Exception as e:
             print(f"Send failed: {e}")
         finally:
@@ -35,7 +35,7 @@ class TelegramBot:
         response = None
         data = None 
         try:
-            response = requests.get(url)
+            response = requests.get(url, timeout=15)
             data = response.json()
         except Exception as e:
             print(f"Polling error: {e}")
