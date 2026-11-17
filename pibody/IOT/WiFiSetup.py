@@ -121,7 +121,7 @@ class _Setup:
         w = WiFi()
         if w.wlan.isconnected():
             w.wlan.disconnect()
-        result = w._join(ssid, password, 20)
+        result = w._join(ssid, password, 30)  # weak signal: joins can take 20 s
         save_network(ssid, password)
         return result
 

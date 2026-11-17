@@ -18,6 +18,8 @@ wifi.connect("Home", "password", save=True)  # and keep it for next time
 wifi.saved(); wifi.forget("Home"); wifi.forget()
 ```
 - Saved networks live in `/wifi.json` (up to 5, newest first).
+- `connect("Other")` while connected to another network switches to it;
+  `disconnect()` clears the old address, so the next network works at once.
 - `connect()` stops right away with "wrong password" or "network not found"
   instead of waiting for the timeout. The error is still a `RuntimeError`.
 - `get_time()` also sets the board clock, so `time.localtime()` is right afterwards.

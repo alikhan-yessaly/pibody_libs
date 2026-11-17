@@ -88,9 +88,11 @@ class WiFi:
         Without password: the saved one for ssid (or none, an open network).
         save=True keeps ssid and password for next time."""
         if self.wlan.isconnected():
-            print("Already connected.")
-            print(f"IP address: {self.wlan.ifconfig()[0]}")
-            return self.wlan.ifconfig()
+            if ssid is None or ssid == self.wlan.config("ssid"):
+                print("Already connected.")
+                print(f"IP address: {self.wlan.ifconfig()[0]}")
+                return self.wlan.ifconfig()
+            self.disconnect()  # another network asked for: switch
 
         self.wlan.active(True)
         if ssid is None:
@@ -127,7 +129,18 @@ class WiFi:
         visible = sorted([k for k in known if k[0] in seen], key=lambda k: -seen[k[0]])
         return visible + [k for k in known if k[0] not in seen]
 
+    def _clear(self):
+        """Drop an address left from an earlier network. The driver keeps it
+        after disconnect(), so isconnected() would still say yes for a while,
+        and after a join it would say yes before the new network gives an
+        address, with traffic failing. Restarting the interface clears it."""
+        if self.wlan.ifconfig()[0] != "0.0.0.0":
+            self.wlan.active(False)
+            self.wlan.active(True)
+
     def _join(self, ssid, password, timeout):
+        if not self.wlan.isconnected():
+            self._clear()
         print(f"Connecting to {ssid}...")
         self.wlan.connect(ssid, password or None)
 
@@ -171,6 +184,7 @@ class WiFi:
         if self.wlan.isconnected():
             self.wlan.disconnect()
             print("Disconnected from Wi-Fi.")
+        self._clear()
 
     def is_connected(self):
         return self.wlan.isconnected()
