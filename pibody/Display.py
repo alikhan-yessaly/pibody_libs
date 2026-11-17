@@ -112,12 +112,28 @@ class Display(DisplayBase):
             self.polygon(buf, 0, 0, color)
 
     def logo(self, x=120, y=100, r=80):
-        super().fill(DisplayBase.WHITE)
-        self.draw_polygon(x, y, r, 8, bump=0.7, fill=True, color=DisplayBase.BLACK)
-        self.draw_polygon(x, y, r * 0.7, 4, bump=0.3, fill=True, color=DisplayBase.WHITE, angle_offset=0)
-        self.text("Artisan", x - r, y + r, font=DisplayBase.font_bold, fg=DisplayBase.BLACK, bg=DisplayBase.WHITE)
-        self.text("Education", x - r, y + r + 32, font=DisplayBase.font_bold, fg=DisplayBase.BLACK, bg=DisplayBase.WHITE)
-        self.text("artisan.education", 100, 300, fg=DisplayBase.BLACK, bg=DisplayBase.WHITE)
+        W, K = DisplayBase.WHITE, DisplayBase.BLACK
+        super().fill(W)
+        try:
+            from DisplayBase import artisan_logo  # smooth edges (newer firmware)
+            artisan_logo(self, x, y, r, K, W)
+        except ImportError:
+            self.draw_polygon(x, y, r, 8, bump=0.7, fill=True, color=K)
+            self.draw_polygon(x, y, r * 0.7, 4, bump=0.3, fill=True, color=W, angle_offset=0)
+        f = DisplayBase.font_bold
+        for i, word in enumerate(("Artisan", "Education")):
+            self.text(word, self._centered(word, x, f), y + r + 8 + i * f.HEIGHT, font=f, fg=K, bg=W)
+        url = "artisan.education"
+        self.text(url, self._centered(url, x, DisplayBase.font_small), 300, fg=K, bg=W)
+
+    def _centered(self, s, cx, font):
+        """x that centres s on cx."""
+        if hasattr(font, "ADV"):
+            chars, adv = font.CHARS, font.ADV
+            w = sum(adv[max(0, chars.find(c))] for c in s)
+        else:
+            w = len(s) * font.WIDTH
+        return max(0, cx - w // 2)
 
 
     # TODO: Add font support.Fix Text appearing at the top bug. Add word wrapping support.
