@@ -93,6 +93,10 @@ def __getattr__(name):
     if name == "display":
         from .Display import Display as _Display
         return _Display()
+    if name == "ble":
+        import sys
+        __import__("pibody.ble")
+        return sys.modules["pibody.ble"]
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
 # Aliases
