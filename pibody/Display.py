@@ -122,17 +122,25 @@ class Display(DisplayBase):
 
     # TODO: Add font support.Fix Text appearing at the top bug. Add word wrapping support.
     def print(self, *args, font=DisplayBase.font_medium, color=DisplayBase.WHITE):
-        max_chars = self.width // font.WIDTH
         msg = (">> " + " ".join(str(a) for a in args))
-        
+        # proportional fonts: wrap when the next character would not fit
+        if hasattr(font, "ADV"):
+            chars, adv = font.CHARS, font.ADV
+            q = chars.find("?")
+            width = lambda ch: adv[chars.find(ch) if ch in chars else q]
+        else:
+            width = lambda ch: font.WIDTH
         line = ""
+        w = 0
         for char in msg:
-            if char == '\n' or len(line) >= max_chars:
+            cw = width(char) if char != '\n' else 0
+            if char == '\n' or w + cw > self.width:
                 self._print_line(line, font, color)
-                line = "" if char == '\n' else char
+                line, w = ("", 0) if char == '\n' else (char, cw)
             else:
                 line += char
-            
+                w += cw
+
         if line:
             self._print_line(line, font, color)
 
